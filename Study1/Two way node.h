@@ -4,12 +4,12 @@
 using namespace std;
 
 template <typename T>
-class Node {
-public:
+struct Node {
 	T mData;
-	Node<T>* mNext;
-	Node<T>* mPrev;
-	explicit Node(const T& data) : mData(data), mNext(nullptr), mPrev(nullptr) {}
+	Node<T>* mNext = nullptr;
+	Node<T>* mPrev = nullptr;
+
+	explicit Node(const T& data) : mData(data) {}
 	Node(const Node<T>& other);
 	Node(Node<T>&& other) noexcept;
 
@@ -20,7 +20,7 @@ public:
 
 template<typename T>
 inline Node<T>::Node(const Node<T>& other)
-    : mData(other.mData), mNext(nullptr), mPrev(nullptr) {
+    : mData(other.mData){
     if (other.mNext) {
         mNext = new Node<T>(*other.mNext);
     }
