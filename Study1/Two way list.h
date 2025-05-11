@@ -2,6 +2,14 @@
 #include <iostream>  
 #include "Two way node.h"  
 using namespace std;  
+template <typename T>
+class TwoWayList;
+
+template <typename T>
+TwoWayList<T> operator+(const TwoWayList<T>& lhs, const TwoWayList<T>& rhs);
+
+template<typename T>
+TwoWayList<T> operator*(const TwoWayList<T>& lhs, const TwoWayList<T>& rhs);
 
 /*  
 Задание 1  
@@ -9,7 +17,7 @@ using namespace std;
 
 Задание 2  
 В существующий класс двусвязного списка добавить: операцию клонирования списка (функция должна возвращать адрес головы клонированного списка), перегрузить оператор + (оператор должен возвращать адрес головы нового списка, содержащего элементы обоих списков для которых вызывался оператор), перегрузить оператор * (оператор должен возвращать адрес головы нового списка, содержащего только общие элементы обоих списков для которых вызывался оператор).  
-*/  
+*/ //
 template <typename T>  
 class TwoWayList {
 private:
@@ -17,9 +25,11 @@ private:
     Node<T>* mTail = nullptr; // Указатель на хвост списка  
     size_t mSize = 0;         // Размер списка  
 
-    static bool isCommonElement(const T& data, const TwoWayList<T>& rhs, const TwoWayList<T>& result);
-    static bool isAlreadyInResult(const T& data, const TwoWayList<T>& result);
+   static bool isCommonElement(const T& data, const TwoWayList<T>& list);
+   static bool isAlreadyInResult(const T& data, const TwoWayList<T>& list);
+
 public:
+
     TwoWayList() = default;
     ~TwoWayList();
 
@@ -33,48 +43,53 @@ public:
     void output() const;
     Node<T>* clone() const;
 
-    template<typename T>
-    friend TwoWayList<T> operator+(const TwoWayList<T>& lhs, const TwoWayList<T>& rhs) {
-        TwoWayList<T> result;
-
-        Node<T>* current = lhs.mHead;
-        while (current) {
-            result.enqueue(current->mData);
-            current = current->mNext;
-        }
-
-        current = rhs.mHead;
-        while (current) {
-            result.enqueue(current->mData);
-            current = current->mNext;
-        }
-
-        return result;
-    }
-   template<typename T>
-   friend TwoWayList<T> operator*(const TwoWayList<T>& lhs, const TwoWayList<T>& rhs) {
-       TwoWayList<T> result;
-
-       Node<T>* currentLhs = lhs.mHead;
-       while (currentLhs) {
-           if (isCommonElement(currentLhs->mData, rhs, result)) {
-               result.enqueue(currentLhs->mData);
-           }
-           currentLhs = currentLhs->mNext;
-       }
-
-       return result;
-   }
-
-
+    friend TwoWayList<T> operator+ <>(const TwoWayList<T>& lhs, const TwoWayList<T>& rhs);
+    friend TwoWayList<T> operator* <>(const TwoWayList<T>& lhs, const TwoWayList<T>& rhs);
 };
 
 template<typename T>
-inline bool TwoWayList<T>::isCommonElement(const T& data, const TwoWayList<T>& rhs, const TwoWayList<T>& result)
+inline TwoWayList<T> operator+(const TwoWayList<T>& lhs, const TwoWayList<T>& rhs)
 {
-    Node<T>* currentRhs = rhs.mHead;
+    TwoWayList<T> result;
+
+    Node<T>* current = lhs.mHead;
+    while (current) {
+        result.enqueue(current->mData);
+        current = current->mNext;
+    }
+
+    current = rhs.mHead;
+    while (current) {
+        result.enqueue(current->mData);
+        current = current->mNext;
+    }
+
+    return result;
+}
+
+template<typename T>
+inline TwoWayList<T> operator*(const TwoWayList<T>& lhs, const TwoWayList<T>& rhs)
+{
+    TwoWayList<T> result;
+
+    Node<T>* currentLhs = lhs.mHead;
+    while (currentLhs) {
+        if (TwoWayList<T>::isCommonElement(currentLhs->mData, rhs) && 
+            !TwoWayList<T>::isAlreadyInResult(currentLhs->mData, result)) {
+            result.enqueue(currentLhs->mData);
+        }
+        currentLhs = currentLhs->mNext;
+    }
+
+    return result;
+}
+
+template<typename T>
+inline bool TwoWayList<T>::isCommonElement(const T& data, const TwoWayList<T>& list)
+{
+    Node<T>* currentRhs = list.mHead;
     while (currentRhs) {
-        if (currentRhs->mData == data && !isAlreadyInResult(data, result)) {
+        if (currentRhs->mData == data) {
             return true;
         }
         currentRhs = currentRhs->mNext;
